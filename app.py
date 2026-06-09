@@ -6,7 +6,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Database Configuration: Use Postgres on Vercel, SQLite on local PC
-database_url = os.environ.get('POSTGRES_URL', 'sqlite:///database.db')
+database_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL', 'sqlite:///database.db')
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
