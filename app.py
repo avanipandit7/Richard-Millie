@@ -1,13 +1,22 @@
+import os
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Database Configuration (Creates a local 'database.db' file automatically)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+# Database Configuration: Use Postgres on Vercel, SQLite on local PC
+database_url = os.environ.get('POSTGRES_URL', 'sqlite:///database.db')
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+# Ensure database tables are created automatically (crucial for Vercel)
+with app.app_context():
+    db.create_all()
 
 # Database Schema Model for Lead/User Entries
 class UserSubmission(db.Model):
@@ -53,6 +62,4 @@ def subscribe():
         return jsonify({"error": "Internal server issue. Please try again later."}), 500
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
