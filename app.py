@@ -14,9 +14,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Ensure database tables are created automatically (crucial for Vercel)
-with app.app_context():
-    db.create_all()
 
 # Database Schema Model for Lead/User Entries
 class UserSubmission(db.Model):
@@ -36,6 +33,9 @@ def home():
 @app.route('/api/subscribe', methods=['POST'])
 def subscribe():
     try:
+        # Ensure tables exist right before querying (safer for Serverless)
+        db.create_all()
+
         data = request.get_json()
         if not data:
             return jsonify({"error": "Invalid request payload"}), 400
@@ -59,7 +59,8 @@ def subscribe():
 
     except Exception as e:
         print(f"Server Error: {str(e)}")
-        return jsonify({"error": "Internal server issue. Please try again later."}), 500
+        # Return the exact error so we can diagnose the Vercel issue
+        return jsonify({"error": f"Database Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
