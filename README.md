@@ -4,7 +4,7 @@ AURUM is a premium luxury watch landing page inspired by high-end horology brand
 
 ---
 
-## ✨ Features
+## ✨ Features :
 
 ### 🎯 Hero Section
 - Full-screen luxury landing page
